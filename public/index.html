@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Familien Website</title>
+    <title>Login - Familienseite</title>
     <style>
         * {
             margin: 0;
@@ -11,124 +11,70 @@
             box-sizing: border-box;
             font-family: Arial, sans-serif;
         }
-
-
+        
         body {
             min-height: 100vh;
-            padding: 20px;
-            background-color: #f5f5f5;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 800px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background-color: #f5f5f5;
             padding: 20px;
-            margin: 20px 0;
         }
-
-
-        .login-form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+        
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-
-        input, button {
+        
+        h1 {
+            margin-bottom: 20px;
+            text-align: center;
+            color: #333;
+        }
+        
+        input {
+            width: 100%;
             padding: 12px;
-            font-size: 16px;
+            margin-bottom: 15px;
             border: 1px solid #ddd;
             border-radius: 5px;
-            width: 100%;
+            font-size: 16px;
         }
-
+        
         button {
+            width: 100%;
+            padding: 12px;
             background-color: #4CAF50;
             color: white;
             border: none;
+            border-radius: 5px;
+            font-size: 16px;
             cursor: pointer;
             transition: background 0.3s;
         }
-
+        
         button:hover {
             background-color: #45a049;
         }
-
-        .content {
-            display: none;
-            width: 100%;
-        }
-
-        textarea {
-            width: 100%;
-            padding: 12px;
-            font-size: 16px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            resize: vertical;
-            min-height: 100px;
-            margin: 10px 0;
-        }
-
-        @media (min-width: 768px) {
-            body {
-                padding: 40px;
-            }
-            
-            .container {
-                padding: 30px;
-            }
-            
-            input, button {
-                padding: 15px;
-                font-size: 18px;
-            }
-        }
-
-        @media (prefers-color-scheme: dark) {
-            body {
-                background: #121212;
-                color: #f1f1f1;
-            }
-            
-            .container {
-                background: #1e1e1e;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-            }
-            
-            input {
-                background: #2d2d2d;
-                color: white;
-                border-color: #444;
-            }
+        
+        .error {
+            color: red;
+            margin-top: 10px;
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="login-form" id="loginForm">
-            <h2>Familien Login</h2>
-            <input type="text" id="username" placeholder="Benutzername" required>
-            <input type="password" id="password" placeholder="Passwort" required>
-            <button onclick="login()">Einloggen</button>
-            <p id="errorMsg" style="color: red; margin-top: 10px;"></p>
-        </div>
-
-        <div class="content" id="content">
-            <h1>Willkommen zurück! 👋</h1>
-            <p>Das ist unsere private Familien-Website.</p>
-            
-            <h2>Neuer Eintrag</h2>
-            <textarea id="newEntry" placeholder="Schreibe etwas..."></textarea>
-            <button onclick="addEntry()">Speichern</button>
-            
-            <div id="entries" style="margin-top: 30px;"></div>
-        </div>
+    <div class="login-container">
+        <h1>Familien Login</h1>
+        <input type="text" id="username" placeholder="Benutzername">
+        <input type="password" id="password" placeholder="Passwort">
+        <button onclick="login()">Einloggen</button>
+        <p id="errorMsg" class="error"></p>
     </div>
 
     <script>
@@ -144,45 +90,13 @@
                 });
                 
                 if (response.ok) {
-                    document.getElementById('loginForm').style.display = 'none';
-                    document.getElementById('content').style.display = 'block';
-                    loadEntries();
+                    window.location.href = "/home.html"; // Weiterleitung zur Hauptseite
                 } else {
-                    document.getElementById('errorMsg').textContent = 'Falsche Anmeldedaten';
+                    document.getElementById('errorMsg').textContent = 'Falscher Benutzername oder Passwort';
                 }
             } catch (error) {
                 console.error('Fehler:', error);
             }
-        }
-        
-        async function loadEntries() {
-            const response = await fetch('/entries');
-            const entries = await response.json();
-            const entriesDiv = document.getElementById('entries');
-            
-            entriesDiv.innerHTML = '<h2>Unsere Einträge:</h2>';
-            entries.forEach(entry => {
-                entriesDiv.innerHTML += `
-                    <div style="background: #f9f9f9; padding: 15px; border-radius: 5px; margin: 10px 0;">
-                        <p>${entry.text}</p>
-                        <small style="color: #666;">${new Date().toLocaleString()}</small>
-                    </div>
-                `;
-            });
-        }
-        
-        async function addEntry() {
-            const text = document.getElementById('newEntry').value;
-            if (!text.trim()) return;
-            
-            await fetch('/entries', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text })
-            });
-            
-            document.getElementById('newEntry').value = '';
-            loadEntries();
         }
     </script>
 </body>

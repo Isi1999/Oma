@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Familienbereich</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            min-height: 100vh;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .logout-btn {
+            display: inline-block;
+            padding: 8px 15px;
+            background-color: #f44336;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            float: right;
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 20px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            min-height: 100px;
+            font-size: 16px;
+        }
+        
+        .entry {
+            background: #f9f9f9;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/logout" class="logout-btn">Ausloggen</a>
+        <h1>Willkommen im Familienbereich!</h1>
+        
+        <h2>Neuer Eintrag</h2>
+        <textarea id="newEntry" placeholder="Schreibe etwas..."></textarea>
+        <button onclick="addEntry()">Speichern</button>
+        
+        <div id="entries">
+            <!-- Einträge werden hier dynamisch eingefügt -->
+        </div>
+    </div>
+
+    <script>
+        // Lade Einträge beim Start
+        document.addEventListener('DOMContentLoaded', loadEntries);
+        
+        async function loadEntries() {
+            try {
+                const response = await fetch('/entries');
+                const entries = await response.json();
+                const entriesDiv = document.getElementById('entries');
+                
+                entriesDiv.innerHTML = '<h2>Unsere Einträge:</h2>';
+                entries.forEach(entry => {
+                    entriesDiv.innerHTML += `
+                        <div class="entry">
+                            <p>${entry.text}</p>
+                            <small>${new Date(entry.date).toLocaleString()}</small>
+                        </div>
+                    `;
+                });
+            } catch (error) {
+                console.error('Fehler:', error);
+            }
+        }
+        
+        async function addEntry() {
+            const text = document.getElementById('newEntry').value;
+            if (!text.trim()) return;
+            
+            try {
+                await fetch('/entries', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text })
+                });
+                
+                document.getElementById('newEntry').value = '';
+                loadEntries();
+            } catch (error) {
+                console.error('Fehler:', error);
+            }
+        }
+    </script>
+</body>
+</html>
