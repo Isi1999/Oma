@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Familien Website</title>
+    <style>
+        body { font-family: Arial; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .login-form { background: #f2f2f2; padding: 20px; border-radius: 5px; }
+        .content { display: none; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="login-form" id="loginForm">
+        <h2>Login für Familie</h2>
+        <input type="text" id="username" placeholder="Benutzername"><br>
+        <input type="password" id="password" placeholder="Passwort"><br>
+        <button onclick="login()">Einloggen</button>
+        <p id="errorMsg" style="color:red;"></p>
+    </div>
+
+    <div class="content" id="content">
+        <h1>Willkommen auf unserer Familien-Website!</h1>
+        <!-- HIER KANNST DU DEINEN HTML-INHALT EINFÜGEN -->
+        <p>Dies ist ein privater Bereich nur für Familienmitglieder.</p>
+        
+        <h2>Neuer Eintrag</h2>
+        <textarea id="newEntry" rows="4" cols="50"></textarea><br>
+        <button onclick="addEntry()">Eintrag hinzufügen</button>
+        
+        <div id="entries"></div>
+    </div>
+
+    <script>
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                if (response.ok) {
+                    document.getElementById('loginForm').style.display = 'none';
+                    document.getElementById('content').style.display = 'block';
+                    loadEntries();
+                } else {
+                    document.getElementById('errorMsg').textContent = 'Falsche Anmeldedaten';
+                }
+            } catch (error) {
+                console.error('Fehler:', error);
+            }
+        }
+        
+        async function loadEntries() {
+            const response = await fetch('/entries');
+            const entries = await response.json();
+            const entriesDiv = document.getElementById('entries');
+            
+            entriesDiv.innerHTML = '<h2>Einträge:</h2>';
+            entries.forEach(entry => {
+                entriesDiv.innerHTML += `<p>${entry.text}</p><hr>`;
+            });
+        }
+        
+        async function addEntry() {
+            const text = document.getElementById('newEntry').value;
+            await fetch('/entries', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text })
+            });
+            document.getElementById('newEntry').value = '';
+            loadEntries();
+        }
+    </script>
+</body>
+</html>
