@@ -1,48 +1,42 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const bcrypt = require('bcryptjs');
 const path = require('path');
 const app = express();
 
-// Einfache "Datenbank" (im echten Leben würde man eine echte DB verwenden)
-let entries = [];
+// Einfache "Datenbank" mit Klartext-Passwort (unsicher!)
 const users = [
     {
-        username: "familie",
-        // Passwort ist "geheim123" (wird gehasht gespeichert)
-        passwordHash: "$2a$10$N9qo8uLOickgx2ZMRZoMy.Mrq5Y0FfyAIW6QjwOVzJQe7.8WJ3Q."
+        username: "familie",  // Benutzername
+        password: "geheim123" // Passwort im Klartext
     }
 ];
 
-// Middleware
+let entries = []; // Für deine Einträge
+
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Login Route
-app.post('/login', async (req, res) => {
+// Login Route (jetzt mit Klartext-Vergleich)
+app.post('/login', (req, res) => {
     const { username, password } = req.body;
     const user = users.find(u => u.username === username);
     
-    if (user && bcrypt.compareSync(password, user.passwordHash)) {
-        res.sendStatus(200);
+    if (user && user.password === password) {
+        res.sendStatus(200); // Erfolg
     } else {
-        res.sendStatus(401);
+        res.sendStatus(401); // Fehler
     }
 });
 
-// Einträge abrufen
+// Rest des Codes bleibt gleich wie zuvor...
 app.get('/entries', (req, res) => {
     res.json(entries);
 });
 
-// Neuen Eintrag hinzufügen
 app.post('/entries', (req, res) => {
     entries.push(req.body);
     res.sendStatus(201);
 });
 
-// Server starten
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server läuft auf http://localhost:${PORT}`);
-});
+app.listen(PORT, () => console.log(`Server läuft auf http://localhost:${PORT}`));
