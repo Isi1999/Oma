@@ -1,32 +1,134 @@
 <!DOCTYPE html>
-<html>
+<html lang="de">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Familien Website</title>
     <style>
-        body { font-family: Arial; max-width: 800px; margin: 0 auto; padding: 20px; }
-        .login-form { background: #f2f2f2; padding: 20px; border-radius: 5px; }
-        .content { display: none; margin-top: 20px; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+
+        body {
+            min-height: 100vh;
+            padding: 20px;
+            background-color: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        input, button {
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 100%;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .content {
+            display: none;
+            width: 100%;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            resize: vertical;
+            min-height: 100px;
+            margin: 10px 0;
+        }
+
+        @media (min-width: 768px) {
+            body {
+                padding: 40px;
+            }
+            
+            .container {
+                padding: 30px;
+            }
+            
+            input, button {
+                padding: 15px;
+                font-size: 18px;
+            }
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: #121212;
+                color: #f1f1f1;
+            }
+            
+            .container {
+                background: #1e1e1e;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            }
+            
+            input {
+                background: #2d2d2d;
+                color: white;
+                border-color: #444;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="login-form" id="loginForm">
-        <h2>Login für Familie</h2>
-        <input type="text" id="username" placeholder="Benutzername"><br>
-        <input type="password" id="password" placeholder="Passwort"><br>
-        <button onclick="login()">Einloggen</button>
-        <p id="errorMsg" style="color:red;"></p>
-    </div>
+    <div class="container">
+        <div class="login-form" id="loginForm">
+            <h2>Familien Login</h2>
+            <input type="text" id="username" placeholder="Benutzername" required>
+            <input type="password" id="password" placeholder="Passwort" required>
+            <button onclick="login()">Einloggen</button>
+            <p id="errorMsg" style="color: red; margin-top: 10px;"></p>
+        </div>
 
-    <div class="content" id="content">
-        <h1>Willkommen auf unserer Familien-Website!</h1>
-        <!-- HIER KANNST DU DEINEN HTML-INHALT EINFÜGEN -->
-        <p>Dies ist ein privater Bereich nur für Familienmitglieder.</p>
-        
-        <h2>Neuer Eintrag</h2>
-        <textarea id="newEntry" rows="4" cols="50"></textarea><br>
-        <button onclick="addEntry()">Eintrag hinzufügen</button>
-        
-        <div id="entries"></div>
+        <div class="content" id="content">
+            <h1>Willkommen zurück! 👋</h1>
+            <p>Das ist unsere private Familien-Website.</p>
+            
+            <h2>Neuer Eintrag</h2>
+            <textarea id="newEntry" placeholder="Schreibe etwas..."></textarea>
+            <button onclick="addEntry()">Speichern</button>
+            
+            <div id="entries" style="margin-top: 30px;"></div>
+        </div>
     </div>
 
     <script>
@@ -58,19 +160,27 @@
             const entries = await response.json();
             const entriesDiv = document.getElementById('entries');
             
-            entriesDiv.innerHTML = '<h2>Einträge:</h2>';
+            entriesDiv.innerHTML = '<h2>Unsere Einträge:</h2>';
             entries.forEach(entry => {
-                entriesDiv.innerHTML += `<p>${entry.text}</p><hr>`;
+                entriesDiv.innerHTML += `
+                    <div style="background: #f9f9f9; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                        <p>${entry.text}</p>
+                        <small style="color: #666;">${new Date().toLocaleString()}</small>
+                    </div>
+                `;
             });
         }
         
         async function addEntry() {
             const text = document.getElementById('newEntry').value;
+            if (!text.trim()) return;
+            
             await fetch('/entries', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ text })
             });
+            
             document.getElementById('newEntry').value = '';
             loadEntries();
         }
